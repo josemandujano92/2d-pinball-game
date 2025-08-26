@@ -3,26 +3,26 @@ package pinball;
 import java.awt.*;
 import java.awt.geom.Line2D;
 
-public class Slingshot {
+class Slingshot {
 	
-	double spx, spy; // start point
-	double epx, epy; // end point
-	boolean active = false;
+	private double spX, spY; // start point coordinates
+	private double epX, epY; // end point coordinates
+	private boolean active;
 	
-	public Slingshot(double spx, double spy, double epx, double epy) {
-		this.spx = spx;
-        this.spy = spy;
-        this.epx = epx;
-        this.epy = epy;
+	Slingshot(double spX, double spY, double epX, double epY) {
+		this.spX = spX;
+        this.spY = spY;
+        this.epX = epX;
+        this.epY = epY;
 	}
 	
-	public void checkCollision(Ball ball) {
+	void checkCollision(Ball ball) {
 		
-		// Vector from start to end point of slingshot. 
-    	Vector2D seVector = new Vector2D(epx - spx, epy - spy);
+		// Vector from start point to end point (of slingshot). 
+    	Vector2D seVector = new Vector2D(epX - spX, epY - spY);
     	
     	// Vector from start point to ball center. 
-    	Vector2D sbVector = new Vector2D(ball.x - spx, ball.y - spy);
+    	Vector2D sbVector = new Vector2D(ball.x - spX, ball.y - spY);
     	
     	// Factor from the projection of the ball center onto the slingshot line. 
     	double pf = sbVector.dot(seVector) / seVector.dot(seVector);
@@ -34,37 +34,42 @@ public class Slingshot {
         Vector2D slingVector = sbVector.subtract(seVector.scale(pf));
         
         // If there is overlapping, then sling the ball. 
-        if (slingVector.length() < ball.radius) {
+        if (slingVector.length() <= ball.radius) {
         	
         	active = true;
         	
-        	// ball velocity 
+        	// The sling vector should only determine the direction of the ball. 
+        	slingVector = slingVector.normalize();
+        	
+        	// ball velocity
         	double ballVel = Math.hypot(ball.vx, ball.vy);
         	
-        	ball.vx = 0.2 * ballVel * slingVector.x;
-        	ball.vy = 0.2 * ballVel * slingVector.y;
+        	ball.vx = 1.1 * ballVel * slingVector.x;
+        	ball.vy = 1.1 * ballVel * slingVector.y;
+        	
+        	ball.update();
         	
 		} else {
 			
+			// The slingshot is not active. 
 			active = false;
 			
 		}
 		
 	}
 	
-	public void draw(Graphics2D g2) {
+	void draw(Graphics2D g2) {
 		
     	g2.setStroke(new BasicStroke(10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
     	
-    	if (active) {
+    	if (active) { // Let the slingshot glow. 
     		g2.setColor(Color.YELLOW);
 		} else {
 			g2.setColor(Color.ORANGE);
 		}
         
-        g2.draw(new Line2D.Double(spx, spy, epx, epy));
+        g2.draw(new Line2D.Double(spX, spY, epX, epY));
         
     }
-
+	
 }
-

@@ -3,17 +3,18 @@ package pinball;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
-public class Bumper {
+class Bumper {
 	
-	double x, y, radius;
-
-    public Bumper(double x, double y, double radius) {
+	private double x, y, radius;
+	private boolean active;
+	
+    Bumper(double x, double y, double radius) {
         this.x = x;
         this.y = y;
         this.radius = radius;
     }
-
-    public boolean checkCollision(Ball ball) {
+    
+    boolean checkCollision(Ball ball) {
     	
     	// Vector from bumper center to ball center. 
     	Vector2D centersVector = new Vector2D(ball.x - x, ball.y - y);
@@ -21,29 +22,40 @@ public class Bumper {
     	// If there is a collision, then reflect the ball. 
     	if (centersVector.length() < ball.radius + radius) {
     		
+    		active = true;
+    		
     		Vector2D movementVector = new Vector2D(-ball.vx, -ball.vy);
     		movementVector = movementVector.reflect(centersVector);
     		
-    		// speed up 
-    		ball.vx = 1.1 * movementVector.x;
-    		ball.vy = 1.1 * movementVector.y;
+    		// speed up
+    		ball.vx = 1.2 * movementVector.x;
+    		ball.vy = 1.2 * movementVector.y;
     		
-			return true;
-			
 		} else {
 			
-			return false;
+			// The bumper is not active. 
+			active = false;
 			
 		}
     	
+    	// Return for the game panel. 
+    	return active;
+    	
     }
     
-    public void draw(Graphics2D g2) {
-        g2.setColor(Color.LIGHT_GRAY);
+    void draw(Graphics2D g2) {
+    	
+    	g2.setColor(Color.LIGHT_GRAY);
         g2.fill(new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2));
-        g2.setColor(Color.DARK_GRAY);
+    	
+    	if (active) { // Let the center of the bumper "blink" on contact. 
+    		g2.setColor(Color.GRAY);
+		} else {
+			g2.setColor(Color.DARK_GRAY);
+		}
+    	
         g2.fill(new Ellipse2D.Double(x - radius / 2, y - radius / 2, radius, radius));
+        
     }
-
+    
 }
-

@@ -1,5 +1,7 @@
 package pinball;
 
+// Class for 2D vector operations. 
+
 public class Vector2D {
 	
 	public double x, y;
@@ -29,6 +31,10 @@ public class Vector2D {
         return Math.hypot(x, y);
     }
     
+    public Vector2D normalize() {
+    	return this.scale(1 / this.length());
+    }
+    
     public Vector2D proj(Vector2D v) { // Projection of this onto v. 
     	return v.scale(this.dot(v) / v.dot(v));
     }
@@ -36,6 +42,6 @@ public class Vector2D {
     public Vector2D reflect(Vector2D v) { // Reflection of this over v. 
     	return ((this.proj(v)).scale(2)).subtract(this);
     }
-
+    
 }
 
