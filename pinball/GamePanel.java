@@ -31,6 +31,9 @@ class GamePanel extends JPanel implements Runnable{
     private double startY = HEIGHT / 6;
     private double ballRadius = 10;
     private ArrayList<Bumper> bumpers = new ArrayList<Bumper>();
+    private Arrow arrowRight;
+    private Arrow arrowLeft;
+    private Portal portal;
     private Slingshot slingLeft, slingRight;
     private Flipper flipperLeft, flipperRight;
     
@@ -50,6 +53,9 @@ class GamePanel extends JPanel implements Runnable{
         bumpers.add(new Bumper(270, 280, 25));
         bumpers.add(new Bumper(180, 190, 15));
         bumpers.add(new Bumper(365, 135, 20));
+        arrowRight = new Arrow(435, 255, 415, 215);
+        arrowLeft = new Arrow(115, 380, 135, 340);
+        portal = new Portal(275, 505, 125, 70, 20);
         slingLeft = new Slingshot(70, 500, 100, 580);
         slingRight = new Slingshot(450, 510, 480, 440);
         flipperLeft = new Flipper(210, 650, true);
@@ -130,6 +136,13 @@ class GamePanel extends JPanel implements Runnable{
 	        	if (b.checkCollision(ball)) score++; // Count collisions with bumpers. 
 	        }
 	        
+	        // Check if the ball touches the arrows. 
+	        arrowRight.checkOverlap(ball);
+	        arrowLeft.checkOverlap(ball);
+	        
+	        // Check if the ball entered the portal. 
+	        portal.checkOverlap(ball);
+	        
 	        slingLeft.checkCollision(ball);
 	        slingRight.checkCollision(ball);
 	        
@@ -169,6 +182,11 @@ class GamePanel extends JPanel implements Runnable{
 		  for (Bumper b : bumpers) {
 	          b.draw(g2);
 	      }
+		  
+		  arrowRight.draw(g2);
+		  arrowLeft.draw(g2);
+		  
+		  portal.draw(g2);
 		  
 		  slingLeft.draw(g2);
 		  slingRight.draw(g2);
