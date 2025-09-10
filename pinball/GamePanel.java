@@ -11,8 +11,8 @@ import java.util.ArrayList;
 class GamePanel extends JPanel implements Runnable{
 	
 	// Game configuration
-	private final int WIDTH = 550;
-	private final int HEIGHT = 750;
+	static final int WIDTH = 480;
+	static final int HEIGHT = 650;
 	private Thread gameThread;
     private double nsPerFrame = 1_000_000_000.0 / 60.0; // A frame frequency of 60/s yields 16666666.7 nanoseconds per frame. 
     private boolean running = false;
@@ -23,18 +23,18 @@ class GamePanel extends JPanel implements Runnable{
     private Font scoreFont = new Font("Monospaced", Font.BOLD, 25);
     private int score = 0;
     private BasicStroke basicStroke = new BasicStroke(15);
-    private Line2D.Double lava = new Line2D.Double(0, 745, WIDTH, 745);
+    private Line2D.Double lava = new Line2D.Double(0, HEIGHT - 5, WIDTH, HEIGHT - 5);
     
     // Game objects
     private Ball ball;
     private double startX = WIDTH / 2;
-    private double startY = HEIGHT / 6;
+    private double startY = HEIGHT / 7;
     private double ballRadius = 10;
     private ArrayList<Bumper> bumpers = new ArrayList<Bumper>();
-    private Arrow arrowRight;
-    private Arrow arrowLeft;
     private Portal portal;
-    private Slingshot slingLeft, slingRight;
+    private Arrow arrowLeft, arrowRight;
+    private Slingshot slingLeft, slingLeftExtension1, slingLeftExtension2;
+    private Slingshot slingRight, slingRightExtension1, slingRightExtension2;
     private Flipper flipperLeft, flipperRight;
     
 	GamePanel() {
@@ -49,17 +49,34 @@ class GamePanel extends JPanel implements Runnable{
 	
 	// Preparations
 	private void initObjects() {
+		
         ball = new Ball(startX, startY, ballRadius);
-        bumpers.add(new Bumper(270, 280, 25));
-        bumpers.add(new Bumper(180, 190, 15));
-        bumpers.add(new Bumper(365, 135, 20));
-        arrowRight = new Arrow(435, 255, 415, 215);
-        arrowLeft = new Arrow(115, 380, 135, 340);
-        portal = new Portal(275, 505, 125, 70, 20);
-        slingLeft = new Slingshot(70, 500, 100, 580);
-        slingRight = new Slingshot(450, 510, 480, 440);
-        flipperLeft = new Flipper(210, 650, true);
-        flipperRight = new Flipper(340, 650, false);
+        
+        // Add bumpers to the list. 
+        bumpers.add(new Bumper(0.35 * WIDTH, HEIGHT / 4, 15));
+        bumpers.add(new Bumper(0.65 * WIDTH, HEIGHT / 5, 20));
+        bumpers.add(new Bumper(WIDTH / 2 - 5, HEIGHT / 3 + 5, 25));
+        
+        portal = new Portal(WIDTH / 2, HEIGHT / 2 + 55, WIDTH / 4, HEIGHT / 8, 20); // Transports the ball to the top. 
+        
+        // One arrow on each side pointing upwards. 
+        arrowLeft = new Arrow(0.2 * WIDTH, HEIGHT / 2, 0.2 * WIDTH + 20, HEIGHT / 2 - 40);
+        arrowRight = new Arrow(0.8 * WIDTH, HEIGHT / 2 - 60, 0.8 * WIDTH - 20, HEIGHT / 2 - 90);
+        
+        // Left slingshot
+        slingLeft = new Slingshot(0.2 * WIDTH - 10, 0.65 * HEIGHT - 60, 0.2 * WIDTH + 20, 0.65 * HEIGHT + 20);
+        slingLeftExtension1 = new Slingshot(0.2 * WIDTH - 10, 0.65 * HEIGHT - 60, 0.2 * WIDTH - 10, 0.65 * HEIGHT + 20);
+        slingLeftExtension2 = new Slingshot(0.2 * WIDTH - 10, 0.65 * HEIGHT + 20, 0.2 * WIDTH + 20, 0.65 * HEIGHT + 20);
+        
+        // Right slingshot
+        slingRight = new Slingshot(0.8 * WIDTH - 20, 0.65 * HEIGHT - 20, 0.8 * WIDTH + 10, 0.65 * HEIGHT - 90);
+        slingRightExtension1 = new Slingshot(0.8 * WIDTH - 20, 0.65 * HEIGHT - 20, 0.8 * WIDTH + 10, 0.65 * HEIGHT - 20);
+        slingRightExtension2 = new Slingshot(0.8 * WIDTH + 10, 0.65 * HEIGHT - 20, 0.8 * WIDTH + 10, 0.65 * HEIGHT - 90);
+        
+        // Flippers
+        flipperLeft = new Flipper(0.3 * WIDTH, HEIGHT - 100, true);
+        flipperRight = new Flipper(0.7 * WIDTH, HEIGHT - 100, false);
+        
     }
 	
 	// Input handling
@@ -124,34 +141,43 @@ class GamePanel extends JPanel implements Runnable{
 	
 	private void updateGame() {
 		
-		// If the game is neither paused nor over, then move the ball and check collisions. 
+		// If the game is neither paused nor over, then update it. 
 		if (!paused && !gameOver) {
 			
+			// Move the ball and check collisions with the walls. 
 	        ball.update();
-	        
-	        // Check collisions with walls. 
 	        ball.checkCollisions();
+	        
+	        // If there is contact with the flippers skip unnecessary collision checks. 
+	        if (flipperLeft.checkCollision(ball) || flipperRight.checkCollision(ball)) return;
 	        
 	        for (Bumper b : bumpers) {
 	        	if (b.checkCollision(ball)) score++; // Count collisions with bumpers. 
 	        }
 	        
 	        // Check if the ball touches the arrows. 
-	        arrowRight.checkOverlap(ball);
 	        arrowLeft.checkOverlap(ball);
+	        arrowRight.checkOverlap(ball);
 	        
 	        // Check if the ball entered the portal. 
 	        portal.checkOverlap(ball);
 	        
-	        slingLeft.checkCollision(ball);
-	        slingRight.checkCollision(ball);
-	        
-	        // If there is contact with the flippers skip their updates (to avoid clipping) and continue the game. 
-	        
-	        if (flipperLeft.checkCollision(ball) || flipperRight.checkCollision(ball)) return;
-	        
+	        // Move the flippers. 
 	        flipperLeft.update();
 	        flipperRight.update();
+	        
+	        // Check collisions with flippers again to improve collision detection. 
+	        if (flipperLeft.checkCollision(ball) || flipperRight.checkCollision(ball)) return;
+	        
+	        // Left slingshot
+	        slingLeft.checkCollision(ball);
+	        slingLeftExtension1.checkCollision(ball);
+	        slingLeftExtension2.checkCollision(ball);
+	        
+	        // Right slingshot
+	        slingRight.checkCollision(ball);
+	        slingRightExtension1.checkCollision(ball);
+	        slingRightExtension2.checkCollision(ball);
 	        
 	        // Check if the ball burns. 
 	        if (ball.y + ball.radius > HEIGHT) gameOver = true;
@@ -183,13 +209,18 @@ class GamePanel extends JPanel implements Runnable{
 	          b.draw(g2);
 	      }
 		  
-		  arrowRight.draw(g2);
 		  arrowLeft.draw(g2);
+		  arrowRight.draw(g2);
 		  
 		  portal.draw(g2);
 		  
 		  slingLeft.draw(g2);
+		  slingLeftExtension1.draw(g2);
+		  slingLeftExtension2.draw(g2);
+		  
 		  slingRight.draw(g2);
+		  slingRightExtension1.draw(g2);
+		  slingRightExtension2.draw(g2);
 		  
 	      flipperLeft.draw(g2);
 	      flipperRight.draw(g2);

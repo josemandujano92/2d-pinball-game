@@ -1,6 +1,7 @@
 package pinball;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 
 class Flipper {
@@ -10,9 +11,10 @@ class Flipper {
     private boolean pressed;
     private double angle;
     private double angleSpeed = Math.toRadians(5);
-    private double length1 = 70;
+    private double length1 = 60;
     private double length2 = 90;
     private float width = 15;
+    private double joinRadius = 17; // radius for the join area
     
     Flipper(double px, double py, boolean isLeft) {
         this.px = px;
@@ -39,12 +41,12 @@ class Flipper {
         		angle -= angleSpeed;
         		angle = Math.max(angle, Math.toRadians(0));
         		px += 3;
-        		px = Math.min(px, 180);
+        		px = Math.min(px, length2 + 75);
     		} else {
     			angle += angleSpeed;
     			angle = Math.min(angle, Math.toRadians(45));
     			px -= 3;
-    			px = Math.max(px, 130);
+    			px = Math.max(px, length2 + 25);
     		}
     		
 		} else { // is right
@@ -53,12 +55,12 @@ class Flipper {
         		angle += angleSpeed;
         		angle = Math.min(angle, Math.toRadians(180));
         		px -= 3;
-    			px = Math.max(px, 370);
+    			px = Math.max(px, GamePanel.WIDTH - length2 - 75);
     		} else {
     			angle -= angleSpeed;
     			angle = Math.max(angle, Math.toRadians(135));
     			px += 3;
-        		px = Math.min(px, 420);
+        		px = Math.min(px, GamePanel.WIDTH - length2 - 25);
     		}
 			
 		}
@@ -75,11 +77,26 @@ class Flipper {
     	
     }
     
-    // Check collision with rotating part. 
+    // Check collision with rotating part and join. 
     private boolean checkCollision1(Ball ball) {
     	
     	// Vector from pivot to center of ball. 
     	Vector2D pcVector = new Vector2D(ball.x - px, ball.y - py);
+    	
+    	// Check collision at the join (and reflect the ball). 
+    	if (pcVector.length() <= joinRadius + ball.radius) {
+    		
+    		Vector2D movementVector = new Vector2D(-ball.vx, -ball.vy);
+    		movementVector = movementVector.reflect(pcVector);
+    		
+    		ball.vx = movementVector.x;
+    		ball.vy = movementVector.y;
+    		
+    		ball.update();
+    		
+    		return true;
+			
+		}
     	
     	// Flipper of unit length. 
     	Vector2D unitFlipper = new Vector2D(Math.cos(angle), Math.sin(angle));
@@ -90,11 +107,11 @@ class Flipper {
         // Adjustment of projection factor for cases where projected point does not lie on flipper itself. 
         pf = Math.max(0, Math.min(length1, pf));
         
-        // Vector for collision test and reflection. 
+        // Vector for collision test (and reflection). 
         Vector2D referenceVector = pcVector.subtract(unitFlipper.scale(pf));
         
         // If there is a collision, then move the ball accordingly. 
-        if (referenceVector.length() < ball.radius) {
+        if (referenceVector.length() <= ball.radius) {
         	
         	Vector2D movementVector = new Vector2D(-ball.vx, -ball.vy);
     		movementVector = movementVector.reflect(referenceVector);
@@ -144,6 +161,7 @@ class Flipper {
     void draw(Graphics2D g2) {
     	
     	g2.setStroke(new BasicStroke(width, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+    	
     	g2.setColor(Color.GRAY);
     	
     	// Draw only the correct side. 
@@ -158,6 +176,10 @@ class Flipper {
         double ty = py + Math.sin(angle) * length1;
         
         g2.draw(new Line2D.Double(px, py, tx, ty));
+        
+        // The join area. 
+        g2.setStroke(new BasicStroke(5));
+    	g2.draw(new Ellipse2D.Double(px - joinRadius, py - joinRadius, joinRadius * 2, joinRadius * 2));
         
     }
     

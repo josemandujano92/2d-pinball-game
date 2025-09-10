@@ -31,6 +31,8 @@ class Bumper {
     		ball.vx = 1.2 * movementVector.x;
     		ball.vy = 1.2 * movementVector.y;
     		
+    		ball.update();
+    		
 		} else {
 			
 			// The bumper is not active. 
@@ -46,9 +48,11 @@ class Bumper {
     void draw(Graphics2D g2) {
     	
     	g2.setColor(Color.LIGHT_GRAY);
+    	
         g2.fill(new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2));
     	
-    	if (active) { // Let the center of the bumper "blink" on contact. 
+        // Let the center of the bumper "blink" on contact. 
+        if (active) {
     		g2.setColor(Color.GRAY);
 		} else {
 			g2.setColor(Color.DARK_GRAY);

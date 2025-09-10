@@ -22,11 +22,11 @@ class Ball {
     
     void update() {
     	
-    	vy += 0.3; // Gravity
+    	vy += 0.2; // Gravity
     	
     	// Limit the velocity to keep the game playable. 
-    	if (Math.abs(vx) > 15) vx = Math.signum(vx) * 15;
-    	if (Math.abs(vy) > 15) vy = Math.signum(vy) * 15;
+    	if (Math.abs(vx) > 9) vx = Math.signum(vx) * 9;
+    	if (Math.abs(vy) > 9) vy = Math.signum(vy) * 9;
     	
     	// Move the ball. 
     	x += vx;
@@ -36,7 +36,7 @@ class Ball {
     
     // Check collisions with walls. 
     void checkCollisions() {
-    	if (x - radius < 0 || x + radius > 550) vx = -vx;
+    	if (x - radius < 0 || x + radius > GamePanel.WIDTH) vx = -vx;
     	if (y - radius < 0) vy = -vy;
     }
     

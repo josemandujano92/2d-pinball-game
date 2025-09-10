@@ -1,11 +1,10 @@
 # 2d-pinball-game
-
 A minimal 2D pinball game built in Java. 
 
 <img src="pinball_gp.png" width="400"/>
 
 ### Overview
-Use the flippers to hit the ball. \
+The player uses the flippers to hit the ball. \
 The game ends when the ball falls below the bottom line. 
 
 ### Project Structure
@@ -41,5 +40,5 @@ Each bumper hit awards 1 point. \
 When the ball falls below the bottom edge the game is over. 
 
 ### Acknowledgments
-Microsoft Copilot for code suggestions. 
+Microsoft/GitHub Copilot for code suggestions. 
 

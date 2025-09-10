@@ -3,6 +3,7 @@ package pinball;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Ellipse2D;
 
 class Portal {
 	
@@ -25,8 +26,14 @@ class Portal {
     	
     	// If there is overlapping, then transport the ball to the exit center. 
     	if (centersVector.length() < radius) {
+    		
     		ball.x = exitX;
     		ball.y = exitY;
+    		
+    		// Slow ball down after transportation. 
+    		ball.vx *= 0.5;
+    		ball.vy *= 0.5;
+    		
 		}
     	
     }
@@ -35,19 +42,19 @@ class Portal {
     	
     	// Exit
     	
-    	g2.setStroke(new BasicStroke(1));
+    	g2.setStroke(new BasicStroke(2));
     	
     	g2.setColor(Color.GREEN);
     	
-    	g2.drawOval((int) exitX - 10, (int) exitY - 10, 20, 20);
+    	g2.draw(new Ellipse2D.Double(exitX - 10, exitY - 10, 20, 20));
     	
     	// Entry
     	
-    	g2.fillOval((int) (entryX - radius), (int) (entryY - radius), (int) radius * 2, (int) radius * 2);
+    	g2.fill(new Ellipse2D.Double(entryX - radius, entryY - radius, radius * 2, radius * 2));
     	
     	g2.setColor(Color.BLUE);
     	
-    	g2.fillOval((int) (entryX - 0.8 * radius), (int) (entryY - 0.8 * radius), (int) (radius * 1.6), (int) (radius * 1.6));
+    	g2.fill(new Ellipse2D.Double(entryX - 0.8 * radius, entryY - 0.8 * radius, radius * 1.6, radius * 1.6));
     	
     }
     

@@ -8,19 +8,22 @@ class Slingshot {
 	private double spX, spY; // start point coordinates
 	private double epX, epY; // end point coordinates
 	private boolean active;
+	private Vector2D seVector;
 	
 	Slingshot(double spX, double spY, double epX, double epY) {
+		
 		this.spX = spX;
         this.spY = spY;
         this.epX = epX;
         this.epY = epY;
+        
+        // Vector from start point to end point. 
+    	this.seVector = new Vector2D(epX - spX, epY - spY);
+        
 	}
 	
 	void checkCollision(Ball ball) {
 		
-		// Vector from start point to end point (of slingshot). 
-    	Vector2D seVector = new Vector2D(epX - spX, epY - spY);
-    	
     	// Vector from start point to ball center. 
     	Vector2D sbVector = new Vector2D(ball.x - spX, ball.y - spY);
     	
@@ -44,8 +47,8 @@ class Slingshot {
         	// ball velocity
         	double ballVel = Math.hypot(ball.vx, ball.vy);
         	
-        	ball.vx = 1.1 * ballVel * slingVector.x;
-        	ball.vy = 1.1 * ballVel * slingVector.y;
+        	ball.vx = 1.2 * ballVel * slingVector.x;
+        	ball.vy = 1.2 * ballVel * slingVector.y;
         	
         	ball.update();
         	

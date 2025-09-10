@@ -39,8 +39,8 @@ class Arrow {
         
         // If there is overlapping, then redirect the ball. 
         if (referenceVector.length() <= ball.radius) {
-        	ball.vx = arrow.x;
-        	ball.vy = arrow.y;
+        	ball.vx = 0.5 * arrow.x;
+        	ball.vy = 0.5 * arrow.y;
         }
 		
 	}
@@ -54,7 +54,7 @@ class Arrow {
 		// Arrow body
 		g2.draw(new Line2D.Double(spX, spY, epX, epY));
 		
-		// preparations
+		// Compute additional points. 
 		Vector2D headSide = (new Vector2D(arrow.y, -arrow.x)).normalize().scale(5);
 		Vector2D headFront = (new Vector2D(epX, epY)).add(arrow.normalize().scale(5));
 		
