@@ -1,16 +1,17 @@
 package pinball;
 
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Line2D;
 
 import javax.swing.JPanel;
 
 import java.util.ArrayList;
 
-class GamePanel extends JPanel implements Runnable{
+class GamePanel extends JPanel implements Runnable {
 	
-	// Game configuration
+	// Game configuration (panel size, nanoseconds per frame, etc.)
 	static final int WIDTH = 480;
 	static final int HEIGHT = 650;
 	private Thread gameThread;
@@ -41,10 +42,9 @@ class GamePanel extends JPanel implements Runnable{
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		setBackground(Color.BLACK);
         setFocusable(true);
+        gameThread = new Thread(this); // The title overlay appears until the thread is started. 
         initObjects();
         initInput();
-        gameThread = new Thread(this);
-        gameThread.start();
 	}
 	
 	// Preparations
@@ -57,23 +57,23 @@ class GamePanel extends JPanel implements Runnable{
         bumpers.add(new Bumper(0.65 * WIDTH, HEIGHT / 5, 20));
         bumpers.add(new Bumper(WIDTH / 2 - 5, HEIGHT / 3 + 5, 25));
         
-        portal = new Portal(WIDTH / 2, HEIGHT / 2 + 55, WIDTH / 4, HEIGHT / 8, 20); // Transports the ball to the top. 
+        // Portal that transports the ball to the top. 
+        portal = new Portal(WIDTH / 2, HEIGHT / 2 + 55, 20, WIDTH / 4, HEIGHT / 8, 10);
         
         // One arrow on each side pointing upwards. 
         arrowLeft = new Arrow(0.2 * WIDTH, HEIGHT / 2, 0.2 * WIDTH + 20, HEIGHT / 2 - 40);
         arrowRight = new Arrow(0.8 * WIDTH, HEIGHT / 2 - 60, 0.8 * WIDTH - 20, HEIGHT / 2 - 90);
         
-        // Left slingshot
+        // The components of the left slingshot. 
         slingLeft = new Slingshot(0.2 * WIDTH - 10, 0.65 * HEIGHT - 60, 0.2 * WIDTH + 20, 0.65 * HEIGHT + 20);
         slingLeftExtension1 = new Slingshot(0.2 * WIDTH - 10, 0.65 * HEIGHT - 60, 0.2 * WIDTH - 10, 0.65 * HEIGHT + 20);
         slingLeftExtension2 = new Slingshot(0.2 * WIDTH - 10, 0.65 * HEIGHT + 20, 0.2 * WIDTH + 20, 0.65 * HEIGHT + 20);
         
-        // Right slingshot
+        // The components of the right slingshot. 
         slingRight = new Slingshot(0.8 * WIDTH - 20, 0.65 * HEIGHT - 20, 0.8 * WIDTH + 10, 0.65 * HEIGHT - 90);
         slingRightExtension1 = new Slingshot(0.8 * WIDTH - 20, 0.65 * HEIGHT - 20, 0.8 * WIDTH + 10, 0.65 * HEIGHT - 20);
         slingRightExtension2 = new Slingshot(0.8 * WIDTH + 10, 0.65 * HEIGHT - 20, 0.8 * WIDTH + 10, 0.65 * HEIGHT - 90);
         
-        // Flippers
         flipperLeft = new Flipper(0.3 * WIDTH, HEIGHT - 100, true);
         flipperRight = new Flipper(0.7 * WIDTH, HEIGHT - 100, false);
         
@@ -86,9 +86,13 @@ class GamePanel extends JPanel implements Runnable{
         	
             @Override
             public void keyPressed(KeyEvent e) {
+            	
             	switch (e.getKeyCode()) {
+            		case KeyEvent.VK_S:
+            			if (!running) gameThread.start();
+            			break;
 	                case KeyEvent.VK_P:
-	                    paused = !paused;
+	                	if (running) paused = !paused;
 	                    break;
 	                case KeyEvent.VK_R: // reset the game
 	                    if (gameOver) {
@@ -101,6 +105,7 @@ class GamePanel extends JPanel implements Runnable{
 	                case KeyEvent.VK_LEFT: flipperLeft.press(); break;
 	                case KeyEvent.VK_RIGHT: flipperRight.press(); break;
             	}
+            	
             }
             
             @Override
@@ -115,6 +120,8 @@ class GamePanel extends JPanel implements Runnable{
 	
 	@Override
 	public void run() {
+		
+		//System.out.println(Thread.currentThread());
 		
 		running = true;
 		
@@ -166,15 +173,15 @@ class GamePanel extends JPanel implements Runnable{
 	        flipperLeft.update();
 	        flipperRight.update();
 	        
-	        // Check collisions with flippers again to improve collision detection. 
+	        // Check collisions with the flippers again to improve collision detection. 
 	        if (flipperLeft.checkCollision(ball) || flipperRight.checkCollision(ball)) return;
 	        
-	        // Left slingshot
+	        // Check collisions with the left slingshot components. 
 	        slingLeft.checkCollision(ball);
 	        slingLeftExtension1.checkCollision(ball);
 	        slingLeftExtension2.checkCollision(ball);
 	        
-	        // Right slingshot
+	        // Check collisions with the right slingshot components. 
 	        slingRight.checkCollision(ball);
 	        slingRightExtension1.checkCollision(ball);
 	        slingRightExtension2.checkCollision(ball);
@@ -201,7 +208,7 @@ class GamePanel extends JPanel implements Runnable{
 	      g2.setFont(scoreFont);
 	      g2.drawString("Score: " + score, 5, 20);
 		  
-		  // Draw game objects. 
+		  // Draw the game objects. 
 	      
 		  ball.draw(g2);
 		  
@@ -231,31 +238,74 @@ class GamePanel extends JPanel implements Runnable{
 		  g2.draw(lava);
 		  
 	      // Overlays
+		  
+		  g2.setColor(Color.CYAN);
+		  
+		  if (!running) drawTitle(g2);
 	      
-	      if (paused && !gameOver) {
-	    	  
-	    	  g2.setColor(Color.CYAN);
-	    	  g2.setFont(new Font("Monospaced", Font.BOLD, 30));
-	    	  
-	    	  FontMetrics fm = g2.getFontMetrics();
-	    	  
-	    	  g2.drawString("Game", (WIDTH - fm.stringWidth("Game")) / 2, HEIGHT / 2 - 5);
-	    	  g2.drawString("Paused", (WIDTH - fm.stringWidth("Paused")) / 2, HEIGHT / 2 + fm.getAscent() + 5);
-	    	  
-	      }
+	      if (paused && !gameOver) drawPaused(g2);
 	      
-	      if (gameOver) {
-	    	  
-	    	  g2.setColor(Color.CYAN);
-	    	  g2.setFont(new Font("Monospaced", Font.BOLD, 35));
-	    	  
-	    	  FontMetrics fm = g2.getFontMetrics();
-	    	  
-	    	  g2.drawString("< GAME OVER >", (WIDTH - fm.stringWidth("< GAME OVER >")) / 2, HEIGHT / 2 - 10);
-	    	  g2.drawString("press (R) to restart", (WIDTH - fm.stringWidth("press (R) to restart")) / 2, HEIGHT / 2 + fm.getAscent() + 10);
-	    	  
-	      }
+	      if (gameOver) drawGameOver(g2);
 	      
 	}
 	
+	// Method to draw the title overlay with instructions. 
+    private void drawTitle(Graphics2D g2) {
+        
+        g2.setFont(new Font("Monospaced", Font.BOLD, 45));
+        
+        String title = "< Pinball Game >";
+        int titleWidth = g2.getFontMetrics().stringWidth(title);
+        
+        g2.drawString(title, (WIDTH - titleWidth) / 2, HEIGHT / 4 + 40);
+        
+        g2.setFont(new Font("Monospaced", Font.BOLD, 25));
+        
+        String prompt = "press (S) to start";
+        int promptWidth = g2.getFontMetrics().stringWidth(prompt);
+        
+        g2.drawString(prompt, (WIDTH - promptWidth) / 2, HEIGHT / 2 + 20);
+        
+        g2.setFont(new Font("Monospaced", Font.BOLD, 20));
+        FontMetrics fm = g2.getFontMetrics();
+        
+        String instructionL1 = "use the left/right arrow key";
+        String instructionL2 = "to move the left/right flipper";
+        
+        g2.drawString(instructionL1, (WIDTH - fm.stringWidth(instructionL1)) / 2, (int) (0.75 * HEIGHT) - 5);
+        g2.drawString(instructionL2, (WIDTH - fm.stringWidth(instructionL2)) / 2, (int) (0.75 * HEIGHT) + fm.getAscent() + 5);
+        
+    }
+    
+    // Method for the pauses. 
+    private void drawPaused(Graphics2D g2) {
+    	
+    	g2.setFont(new Font("Monospaced", Font.BOLD, 30));
+  	  	
+  	  	String pausedStr = "< Paused >";
+  	  	int pausedStrWidth = g2.getFontMetrics().stringWidth(pausedStr);
+  	  	
+  	  	g2.drawString(pausedStr, (WIDTH - pausedStrWidth) / 2, HEIGHT / 2);
+    	
+    }
+    
+    // Method for the game over state. 
+    private void drawGameOver(Graphics2D g2) {
+    	
+    	g2.setFont(new Font("Monospaced", Font.BOLD, 35));
+  	  	
+  	  	String gameOverStr = "< Game Over >";
+  	  	int gameOverStrWidth = g2.getFontMetrics().stringWidth(gameOverStr);
+  	  	
+  	  	g2.drawString(gameOverStr, (WIDTH - gameOverStrWidth) / 2, HEIGHT / 2 - 20);
+  	  	
+  	  	g2.setFont(new Font("Monospaced", Font.BOLD, 25));
+        
+        String prompt = "press (R) to restart";
+        int promptWidth = g2.getFontMetrics().stringWidth(prompt);
+  	  	
+  	  	g2.drawString(prompt, (WIDTH - promptWidth) / 2, HEIGHT / 2 + 20);
+    	
+    }
+    
 }

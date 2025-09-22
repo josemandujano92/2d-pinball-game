@@ -10,6 +10,7 @@ class Arrow {
 	private double spX, spY; // start point coordinates
 	private double epX, epY; // end point coordinates
 	private Vector2D arrow;
+	private BasicStroke stroke = new BasicStroke(5, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER);
 	
 	Arrow(double spX, double spY, double epX, double epY) {
 		
@@ -38,7 +39,7 @@ class Arrow {
         Vector2D referenceVector = sbVector.subtract(arrow.scale(pf));
         
         // If there is overlapping, then redirect the ball. 
-        if (referenceVector.length() <= ball.radius) {
+        if (referenceVector.length() < ball.radius) {
         	ball.vx = 0.5 * arrow.x;
         	ball.vy = 0.5 * arrow.y;
         }
@@ -47,8 +48,7 @@ class Arrow {
 	
 	void draw(Graphics2D g2) {
 		
-		g2.setStroke(new BasicStroke(5, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER));
-		
+		g2.setStroke(stroke);
 		g2.setColor(Color.MAGENTA);
 		
 		// Arrow body

@@ -7,16 +7,20 @@ import java.awt.geom.Ellipse2D;
 
 class Portal {
 	
-	private double entryX, entryY; // entry coordinates
-	private double exitX, exitY; // exit coordinates
-	private double radius;
+	private double entryX, entryY, entryRadius; // Location and size of the entry. 
+	private double exitX, exitY; // Location of the exit. 
+	private Ellipse2D.Double exit;
 	
-    Portal(double entryX, double entryY, double exitX, double exitY, double radius) {
+    Portal(double entryX, double entryY, double entryRadius, double exitX, double exitY, double exitRadius) {
+    	
     	this.entryX = entryX;
         this.entryY = entryY;
+        this.entryRadius = entryRadius;
+        
         this.exitX = exitX;
         this.exitY = exitY;
-        this.radius = radius;
+        this.exit = new Ellipse2D.Double(exitX - exitRadius, exitY - exitRadius, exitRadius * 2, exitRadius * 2); // for rendering
+        
     }
     
     void checkOverlap(Ball ball) {
@@ -24,13 +28,13 @@ class Portal {
     	// Vector from entry center to ball center. 
     	Vector2D centersVector = new Vector2D(ball.x - entryX, ball.y - entryY);
     	
-    	// If there is overlapping, then transport the ball to the exit center. 
-    	if (centersVector.length() < radius) {
+    	// If there is overlapping, then transport the ball to the exit. 
+    	if (centersVector.length() < entryRadius) {
     		
     		ball.x = exitX;
     		ball.y = exitY;
     		
-    		// Slow ball down after transportation. 
+    		// Slow down the ball after transportation. 
     		ball.vx *= 0.5;
     		ball.vy *= 0.5;
     		
@@ -46,15 +50,15 @@ class Portal {
     	
     	g2.setColor(Color.GREEN);
     	
-    	g2.draw(new Ellipse2D.Double(exitX - 10, exitY - 10, 20, 20));
+    	g2.draw(exit);
     	
     	// Entry
     	
-    	g2.fill(new Ellipse2D.Double(entryX - radius, entryY - radius, radius * 2, radius * 2));
+    	g2.fill(new Ellipse2D.Double(entryX - entryRadius, entryY - entryRadius, entryRadius * 2, entryRadius * 2));
     	
     	g2.setColor(Color.BLUE);
     	
-    	g2.fill(new Ellipse2D.Double(entryX - 0.8 * radius, entryY - 0.8 * radius, radius * 1.6, radius * 1.6));
+    	g2.fill(new Ellipse2D.Double(entryX - 0.8 * entryRadius, entryY - 0.8 * entryRadius, entryRadius * 1.6, entryRadius * 1.6));
     	
     }
     

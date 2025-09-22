@@ -1,17 +1,25 @@
 package pinball;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 
 class Bumper {
 	
-	private double x, y, radius;
+	private double x, y, radius; // Location and size of the bumper. 
+	private Ellipse2D.Double outerPart, innerPart;
 	private boolean active;
 	
     Bumper(double x, double y, double radius) {
+    	
         this.x = x;
         this.y = y;
         this.radius = radius;
+        
+        // Parts of the bumper (for rendering). 
+        this.outerPart = new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2);
+        this.innerPart = new Ellipse2D.Double(x - radius / 2, y - radius / 2, radius, radius);
+        
     }
     
     boolean checkCollision(Ball ball) {
@@ -40,7 +48,7 @@ class Bumper {
 			
 		}
     	
-    	// Return for the game panel. 
+    	// Return information for the game panel. 
     	return active;
     	
     }
@@ -49,7 +57,7 @@ class Bumper {
     	
     	g2.setColor(Color.LIGHT_GRAY);
     	
-        g2.fill(new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2));
+        g2.fill(outerPart);
     	
         // Let the center of the bumper "blink" on contact. 
         if (active) {
@@ -58,7 +66,7 @@ class Bumper {
 			g2.setColor(Color.DARK_GRAY);
 		}
     	
-        g2.fill(new Ellipse2D.Double(x - radius / 2, y - radius / 2, radius, radius));
+        g2.fill(innerPart);
         
     }
     

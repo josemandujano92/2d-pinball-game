@@ -1,11 +1,11 @@
 # 2d-pinball-game
+
 A minimal 2D pinball game built in Java. 
 
 <img src="pinball_gp.png" width="400"/>
 
 ### Overview
-The player uses the flippers to hit the ball. \
-The game ends when the ball falls below the bottom line. 
+The ball spawns near the top. The player uses the flippers to hit the ball. 
 
 ### Project Structure
 * GameFrame.java: Sets up window size, close operation and adds the game panel. 
@@ -14,9 +14,9 @@ The game ends when the ball falls below the bottom line.
 * Vector2D.java: Class for 2D vector operations. 
 
 ### How to Run
-Clone the repository into your Eclipse workspace. \
-Right‐click the project and select "Run As" > "1 Java Application". \
-The pinball window will open automatically. 
+* Clone the repository into your Eclipse workspace. 
+* Right‐click the project and select "Run As" > "1 Java Application". 
+* The pinball window will open (then press S to start). 
 
 ### Controls
 |Key|Action|
@@ -24,7 +24,7 @@ The pinball window will open automatically.
 |Left Arrow|Control left flipper|
 |Right Arrow|Control right flipper|
 |P|Pause or resume the game|
-|R|Restart when on the game over screen|
+|R|Restart when on the game over state|
 
 ### Gameplay Features
 * Ball movement with basic physics. 
@@ -36,8 +36,7 @@ The pinball window will open automatically.
 * AND MORE! 
 
 ### Scoring & Game Over
-Each bumper hit awards 1 point. \
-When the ball falls below the bottom edge the game is over. 
+Each bumper hit awards 1 point. When the ball falls below the bottom edge the game is over. 
 
 ### Acknowledgments
 Microsoft/GitHub Copilot for code suggestions. 

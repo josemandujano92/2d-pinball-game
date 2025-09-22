@@ -1,6 +1,7 @@
 package pinball;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 
 class Ball {
@@ -10,7 +11,8 @@ class Ball {
     
     Ball(double startX, double startY, double ballRadius) {
     	
-        x = startX;
+        // Ball center and size. 
+    	x = startX;
         y = startY;
         radius = ballRadius;
         
@@ -22,7 +24,8 @@ class Ball {
     
     void update() {
     	
-    	vy += 0.2; // Gravity
+    	// Gravity
+    	vy += 0.2;
     	
     	// Limit the velocity to keep the game playable. 
     	if (Math.abs(vx) > 9) vx = Math.signum(vx) * 9;
@@ -36,8 +39,14 @@ class Ball {
     
     // Check collisions with walls. 
     void checkCollisions() {
-    	if (x - radius < 0 || x + radius > GamePanel.WIDTH) vx = -vx;
+    	
+    	if (x - radius < 0 || x + radius > GamePanel.WIDTH) {
+    		vx = -vx;
+    		update();
+    	}
+    	
     	if (y - radius < 0) vy = -vy;
+    	
     }
     
     void draw(Graphics2D g2) {

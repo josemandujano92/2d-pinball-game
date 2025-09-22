@@ -1,24 +1,28 @@
 package pinball;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 
 class Slingshot {
 	
 	private double spX, spY; // start point coordinates
-	private double epX, epY; // end point coordinates
-	private boolean active;
 	private Vector2D seVector;
+	private Line2D.Double slingshotLine;
+	private boolean active;
+	private BasicStroke lineWidth = new BasicStroke(10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	
 	Slingshot(double spX, double spY, double epX, double epY) {
 		
 		this.spX = spX;
         this.spY = spY;
-        this.epX = epX;
-        this.epY = epY;
         
         // Vector from start point to end point. 
     	this.seVector = new Vector2D(epX - spX, epY - spY);
+    	
+    	// Slingshot line (for rendering)
+    	this.slingshotLine = new Line2D.Double(spX, spY, epX, epY);
         
 	}
 	
@@ -63,7 +67,7 @@ class Slingshot {
 	
 	void draw(Graphics2D g2) {
 		
-    	g2.setStroke(new BasicStroke(10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+    	g2.setStroke(lineWidth);
     	
     	if (active) { // Let the slingshot glow. 
     		g2.setColor(Color.YELLOW);
@@ -71,7 +75,7 @@ class Slingshot {
 			g2.setColor(Color.ORANGE);
 		}
         
-        g2.draw(new Line2D.Double(spX, spY, epX, epY));
+        g2.draw(slingshotLine);
         
     }
 	

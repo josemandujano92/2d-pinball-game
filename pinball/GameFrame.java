@@ -10,7 +10,7 @@ class GameFrame extends JFrame {
 	    setDefaultCloseOperation(EXIT_ON_CLOSE);
 	    add(new GamePanel());
 	    pack();
-	    setLocationRelativeTo(null);
+	    setLocationRelativeTo(null); // The window is placed in the center of the screen. 
 	    setVisible(true);
 	}
 	
@@ -18,8 +18,7 @@ class GameFrame extends JFrame {
 		
 		//System.out.println(Thread.currentThread());
 		
-		// Execute run() on the event dispatching thread. 
-		SwingUtilities.invokeLater(new Runnable() {
+		SwingUtilities.invokeLater(new Runnable() { // Execute run() on the event dispatching thread. 
             public void run() {
     			//System.out.println(Thread.currentThread());
             	new GameFrame();
