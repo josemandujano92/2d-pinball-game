@@ -8,19 +8,25 @@ import java.awt.geom.Line2D;
 class Arrow {
 	
 	private double spX, spY; // start point coordinates
-	private double epX, epY; // end point coordinates
 	private Vector2D arrow;
+	private Line2D.Double arrowLine, arrowHeadOneSide, arrowHeadOtherSide;
 	private BasicStroke stroke = new BasicStroke(5, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER);
 	
 	Arrow(double spX, double spY, double epX, double epY) {
 		
 		this.spX = spX;
         this.spY = spY;
-        this.epX = epX;
-        this.epY = epY;
         
-        // Vector from start point to end point. 
-    	this.arrow = new Vector2D(epX - spX, epY - spY);
+    	this.arrow = new Vector2D(epX - spX, epY - spY); // Vector from start point to end point. 
+    	
+    	// compute additional points
+    	Vector2D headSide = (new Vector2D(arrow.y, -arrow.x)).normalize().scale(5);
+    	Vector2D headFront = (new Vector2D(epX, epY)).add(arrow.normalize().scale(5));
+    	
+    	// for rendering
+    	arrowLine = new Line2D.Double(spX, spY, epX, epY);
+    	arrowHeadOneSide = new Line2D.Double(epX + headSide.x, epY + headSide.y, headFront.x, headFront.y);
+    	arrowHeadOtherSide = new Line2D.Double(headFront.x, headFront.y, epX - headSide.x, epY - headSide.y);
         
 	}
 	
@@ -51,16 +57,10 @@ class Arrow {
 		g2.setStroke(stroke);
 		g2.setColor(Color.MAGENTA);
 		
-		// Arrow body
-		g2.draw(new Line2D.Double(spX, spY, epX, epY));
-		
-		// Compute additional points. 
-		Vector2D headSide = (new Vector2D(arrow.y, -arrow.x)).normalize().scale(5);
-		Vector2D headFront = (new Vector2D(epX, epY)).add(arrow.normalize().scale(5));
-		
-		// Arrow head
-		g2.draw(new Line2D.Double(epX + headSide.x, epY + headSide.y, headFront.x, headFront.y));
-		g2.draw(new Line2D.Double(headFront.x, headFront.y, epX - headSide.x, epY - headSide.y));
+		// arrow parts
+		g2.draw(arrowLine);
+		g2.draw(arrowHeadOneSide);
+		g2.draw(arrowHeadOtherSide);
 		
 	}
 	
