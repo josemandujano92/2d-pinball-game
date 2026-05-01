@@ -35,7 +35,19 @@ class GamePanel extends JPanel implements Runnable {
     private Portal portal;
     private Arrow arrowLeft, arrowRight;
     private Slingshot slingLeft, slingLeftExtension1, slingLeftExtension2;
+    private double slFirstVertexX = 0.2 * WIDTH - 10;
+    private double slFirstVertexY = 0.65 * HEIGHT - 60;
+    private double slSecondVertexX = 0.2 * WIDTH + 20;
+    private double slSecondVertexY = 0.65 * HEIGHT + 15;
+    private double slThirdVertexX = 0.2 * WIDTH - 5;
+    private double slThirdVertexY = 0.65 * HEIGHT + 20;
     private Slingshot slingRight, slingRightExtension1, slingRightExtension2;
+    private double srFirstVertexX = 0.8 * WIDTH - 20;
+    private double srFirstVertexY = 0.65 * HEIGHT - 20;
+    private double srSecondVertexX = 0.8 * WIDTH + 10;
+    private double srSecondVertexY = 0.65 * HEIGHT - 90;
+    private double srThirdVertexX = 0.8 * WIDTH + 5;
+    private double srThirdVertexY = 0.65 * HEIGHT - 15;
     private Flipper flipperLeft, flipperRight;
     
 	GamePanel() {
@@ -65,14 +77,14 @@ class GamePanel extends JPanel implements Runnable {
         arrowRight = new Arrow(0.8 * WIDTH, HEIGHT / 2 - 60, 0.8 * WIDTH - 20, HEIGHT / 2 - 90);
         
         // The components of the left slingshot. 
-        slingLeft = new Slingshot(0.2 * WIDTH - 10, 0.65 * HEIGHT - 60, 0.2 * WIDTH + 20, 0.65 * HEIGHT + 20);
-        slingLeftExtension1 = new Slingshot(0.2 * WIDTH - 10, 0.65 * HEIGHT - 60, 0.2 * WIDTH - 10, 0.65 * HEIGHT + 20);
-        slingLeftExtension2 = new Slingshot(0.2 * WIDTH - 10, 0.65 * HEIGHT + 20, 0.2 * WIDTH + 20, 0.65 * HEIGHT + 20);
+        slingLeft = new Slingshot(slFirstVertexX, slFirstVertexY, slSecondVertexX, slSecondVertexY);
+        slingLeftExtension1 = new Slingshot(slFirstVertexX, slFirstVertexY, slThirdVertexX, slThirdVertexY);
+        slingLeftExtension2 = new Slingshot(slThirdVertexX, slThirdVertexY, slSecondVertexX, slSecondVertexY);
         
         // The components of the right slingshot. 
-        slingRight = new Slingshot(0.8 * WIDTH - 20, 0.65 * HEIGHT - 20, 0.8 * WIDTH + 10, 0.65 * HEIGHT - 90);
-        slingRightExtension1 = new Slingshot(0.8 * WIDTH - 20, 0.65 * HEIGHT - 20, 0.8 * WIDTH + 10, 0.65 * HEIGHT - 20);
-        slingRightExtension2 = new Slingshot(0.8 * WIDTH + 10, 0.65 * HEIGHT - 20, 0.8 * WIDTH + 10, 0.65 * HEIGHT - 90);
+        slingRight = new Slingshot(srFirstVertexX, srFirstVertexY, srSecondVertexX, srSecondVertexY);
+        slingRightExtension1 = new Slingshot(srFirstVertexX, srFirstVertexY, srThirdVertexX, srThirdVertexY);
+        slingRightExtension2 = new Slingshot(srThirdVertexX, srThirdVertexY, srSecondVertexX, srSecondVertexY);
         
         flipperLeft = new Flipper(0.3 * WIDTH, HEIGHT - 100, true);
         flipperRight = new Flipper(0.7 * WIDTH, HEIGHT - 100, false);
