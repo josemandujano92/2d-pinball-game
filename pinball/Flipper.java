@@ -17,12 +17,14 @@ class Flipper {
     private double length2 = 90;
     private double joinRadius = 17; // radius of the join area
     private float width = 15;
+    private BasicStroke strokeCircle = new BasicStroke(width / 2);
+    private BasicStroke strokeFlatParts = new BasicStroke(width, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
     
     Flipper(double px, double py, boolean isLeft) {
     	
         this.px = px;
         this.py = py;
-        this.isLeft = isLeft; // is left or right flipper
+        this.isLeft = isLeft; // or right flipper
         
         // Initialize angle depending on side. 
         if (isLeft) {
@@ -80,7 +82,7 @@ class Flipper {
     
     boolean checkCollision(Ball ball) {
     	
-    	// Check collision with join and rotating/sliding part. 
+    	// Check collisions with join circle and rotating/sliding parts. 
     	if (checkCollisionJoin(ball) | checkCollision1(ball) | checkCollision2(ball)) return true;
     	
     	// There is no collision. 
@@ -186,13 +188,7 @@ class Flipper {
     void draw(Graphics2D g2) {
     	
     	g2.setColor(Color.GRAY);
-    	
-        g2.setStroke(new BasicStroke(width / 2));
-        
-    	// The join area. 
-    	g2.draw(new Ellipse2D.Double(px - joinRadius, py - joinRadius, joinRadius * 2, joinRadius * 2));
-    	
-    	g2.setStroke(new BasicStroke(width, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+    	g2.setStroke(strokeFlatParts);
     	
     	// Draw only the correct side. 
     	if (isLeft) {
@@ -206,6 +202,11 @@ class Flipper {
         double ty = py + Math.sin(angle) * length1;
         
         g2.draw(new Line2D.Double(px, py, tx, ty));
+        
+    	// The join area. 
+        g2.setColor(Color.WHITE);
+        g2.setStroke(strokeCircle);
+    	g2.draw(new Ellipse2D.Double(px - joinRadius, py - joinRadius, joinRadius * 2, joinRadius * 2));
         
     }
     
