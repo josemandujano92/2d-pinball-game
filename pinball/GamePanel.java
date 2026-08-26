@@ -1,15 +1,15 @@
 package pinball;
 
 import java.awt.*;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.geom.Line2D;
 
 import javax.swing.JPanel;
 
 import java.util.ArrayList;
 
-class GamePanel extends JPanel implements Runnable {
+class GamePanel extends JPanel implements Runnable, KeyListener {
 	
 	// Game configuration (panel size, nanoseconds per frame, etc.)
 	static final int WIDTH = 480;
@@ -56,7 +56,7 @@ class GamePanel extends JPanel implements Runnable {
         setFocusable(true);
         gameThread = new Thread(this); // The title overlay appears until the thread is started. 
         initObjects();
-        initInput();
+        addKeyListener(this);
 	}
 	
 	// Preparations
@@ -92,44 +92,45 @@ class GamePanel extends JPanel implements Runnable {
     }
 	
 	// Input handling
-	private void initInput() {
-		
-        addKeyListener(new KeyAdapter() {
-        	
-            @Override
-            public void keyPressed(KeyEvent e) {
-            	
-            	switch (e.getKeyCode()) {
-            		case KeyEvent.VK_S:
-            			if (!running) gameThread.start();
-            			break;
-	                case KeyEvent.VK_P:
-	                	if (running) paused = !paused;
-	                    break;
-	                case KeyEvent.VK_R: // reset the game
-	                    if (gameOver) {
-	                    	paused = false;
-	                		gameOver = false;
-	                	    score = 0;
-	                	    ball = new Ball(startX, startY, ballRadius);
-	                    }
-	                    break;
-	                case KeyEvent.VK_LEFT: flipperLeft.press(); break;
-	                case KeyEvent.VK_RIGHT: flipperRight.press(); break;
-            	}
-            	
-            }
-            
-            @Override
-            public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_LEFT) flipperLeft.release();
-                if (e.getKeyCode() == KeyEvent.VK_RIGHT) flipperRight.release();
-            }
-            
-        });
+	
+	@Override
+    public void keyPressed(KeyEvent e) {
+    	
+    	switch (e.getKeyCode()) {
+            case KeyEvent.VK_P:
+            	if (running) paused = !paused;
+                break;
+            case KeyEvent.VK_LEFT: flipperLeft.press(); break;
+            case KeyEvent.VK_RIGHT: flipperRight.press(); break;
+    	}
+    	
+    }
+    
+    @Override
+    public void keyReleased(KeyEvent e) {
+    	
+    	switch (e.getKeyCode()) {
+	    	case KeyEvent.VK_S: // Execute this.run() on the game thread. 
+				if (!running) gameThread.start();
+				break;
+	    	case KeyEvent.VK_R: // reset the game
+                if (gameOver) {
+                	paused = false;
+            		gameOver = false;
+            	    score = 0;
+            	    ball = new Ball(startX, startY, ballRadius);
+                }
+                break;
+	    	case KeyEvent.VK_LEFT: flipperLeft.release(); break;
+	    	case KeyEvent.VK_RIGHT: flipperRight.release(); break;
+    	}
         
     }
+    
+    @Override
+    public void keyTyped(KeyEvent e) { }
 	
+    // Execute on the game thread! 
 	@Override
 	public void run() {
 		

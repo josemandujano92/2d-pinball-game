@@ -28,8 +28,11 @@ class Ball {
     	vy += 0.2;
     	
     	// Limit the velocity to keep the game playable. 
-    	if (Math.abs(vx) > 9) vx = Math.signum(vx) * 9;
-    	if (Math.abs(vy) > 9) vy = Math.signum(vy) * 9;
+    	double v = Math.hypot(vx, vy);
+    	if (v > 9) {
+    		vx = (vx / v) * 9;
+    		vy = (vy / v) * 9;
+    	}
     	
     	// Move the ball. 
     	x += vx;
