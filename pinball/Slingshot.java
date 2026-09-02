@@ -26,7 +26,7 @@ class Slingshot {
         
 	}
 	
-	void checkCollision(Ball ball) {
+	boolean checkCollision(Ball ball) {
 		
     	// Vector from start point to ball center. 
     	Vector2D sbVector = new Vector2D(ball.x - spX, ball.y - spY);
@@ -62,6 +62,9 @@ class Slingshot {
 			active = false;
 			
 		}
+        
+        // Return information for the game panel. 
+    	return active;
 		
 	}
 	

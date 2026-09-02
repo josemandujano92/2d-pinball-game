@@ -46,7 +46,22 @@ class Flipper {
     }
     
     // Adjust pivot/angle according to side and key inputs. 
-    void update() {
+    void update(Ball ball) {
+    	
+    	// If the ball is near the flippers do an additional collision check. 
+    	if (ball.y - ball.radius > 0.75 * GamePanel.HEIGHT) {
+    		
+    		// Move the ball slightly. 
+    		ball.x += 0.5 * ball.vx;
+    		ball.y += 0.5 * ball.vy;
+    		
+    		if (checkCollision(ball)) return;
+    		
+    		// If there is no collision, then return the ball to it's previous location. 
+    		ball.x -= 0.5 * ball.vx;
+    		ball.y -= 0.5 * ball.vy;
+    		
+    	}
     	
     	if (isLeft) {
     		
@@ -140,11 +155,21 @@ class Flipper {
         // If there is a collision, then move the ball accordingly. 
         if (referenceVector.length() <= ball.radius) {
         	
+        	// Ensure that the reference vector is pointing upwards for a correct reflection of the ball (especially near the tip of the flipper). 
+        	if (referenceVector.y < 0) referenceVector = referenceVector.scale(-1);
+        	
         	Vector2D movementVector = new Vector2D(-ball.vx, -ball.vy);
     		movementVector = movementVector.reflect(referenceVector);
     		
     		ball.vx = movementVector.x;
     		ball.vy = movementVector.y;
+    		
+    		// Move the ball away to avoid clipping. 
+    		if (pressed) {
+    			movementVector = movementVector.normalize().scale(ball.radius);
+    			ball.x += movementVector.x;
+    			ball.y += movementVector.y;
+    		}
     		
     		ball.update();
     		
@@ -165,17 +190,31 @@ class Flipper {
     		
     		// Check only the correct side. 
     		if (isLeft) {
+    			
             	if (px - length2 < ball.x + ball.radius && px > ball.x - ball.radius) {
+            		
     				ball.vy = -ball.vy;
-    				ball.update();
+    				
+    				// Move the ball upwards to avoid clipping. 
+    				ball.y -= ball.radius / 2;
+    				
     				return true;
+    				
     			}
+            	
     		} else {
+    			
     			if (px < ball.x + ball.radius && px + length2 > ball.x - ball.radius) {
+    				
     				ball.vy = -ball.vy;
-    				ball.update();
+    				
+    				// Move the ball upwards to avoid clipping. 
+    				ball.y -= ball.radius / 2;
+    				
     				return true;
+    				
     			}
+    			
     		}
     		
     	}

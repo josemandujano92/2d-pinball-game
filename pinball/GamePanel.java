@@ -168,39 +168,56 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 	        ball.update();
 	        ball.checkCollisions();
 	        
-	        // If there is contact with the flippers skip unnecessary collision checks. 
-	        if (flipperLeft.checkCollision(ball) || flipperRight.checkCollision(ball)) return;
-	        
-	        for (Bumper b : bumpers) {
-	        	if (b.checkCollision(ball)) score++; // Count collisions with bumpers. 
+	        if (ball.y - ball.radius > 0.75 * HEIGHT) {
+	        	
+	        	// If there is contact with the flippers skip unnecessary collision checks. 
+		        if (flipperLeft.checkCollision(ball) || flipperRight.checkCollision(ball)) return;
+		        
+		        // Move the flippers. 
+		        flipperLeft.update(ball);
+		        flipperRight.update(ball);
+		        
+		        // Check collisions with the flippers again to improve collision detection. 
+		        if (flipperLeft.checkCollision(ball) || flipperRight.checkCollision(ball)) return;
+		        
+		        // Check if the ball burns. 
+		        if (ball.y + ball.radius > HEIGHT) gameOver = true;
+	        	
+	        } else {
+	        	
+	        	// Move the flippers. 
+		        flipperLeft.update(ball);
+		        flipperRight.update(ball);
+	        	
+	        	if (ball.x < 0.5 * WIDTH) {
+	        		
+	        		// Check collisions with the left slingshot. 
+	        		if (slingLeft.checkCollision(ball) || 
+	        				slingLeftExtension1.checkCollision(ball) || slingLeftExtension2.checkCollision(ball)) return;
+	        		
+	        		// Check if the ball touches the left arrow. 
+	    	        arrowLeft.checkOverlap(ball);
+	        		
+	        	} else {
+	        		
+	        		// Check collisions with the right slingshot. 
+	        		if (slingRight.checkCollision(ball) || 
+	        				slingRightExtension1.checkCollision(ball) || slingRightExtension2.checkCollision(ball)) return;
+	    	        
+	    	        // Check if the ball touches the right arrow. 
+	    	        arrowRight.checkOverlap(ball);
+	        		
+	        	}
+	        	
+	        	// Count collisions with bumpers. 
+	        	for (Bumper b : bumpers) {
+		        	if (b.checkCollision(ball)) score++;
+		        }
+	        	
+	        	// Check if the ball entered the portal. 
+		        portal.checkOverlap(ball);
+	        	
 	        }
-	        
-	        // Check if the ball touches the arrows. 
-	        arrowLeft.checkOverlap(ball);
-	        arrowRight.checkOverlap(ball);
-	        
-	        // Check if the ball entered the portal. 
-	        portal.checkOverlap(ball);
-	        
-	        // Move the flippers. 
-	        flipperLeft.update();
-	        flipperRight.update();
-	        
-	        // Check collisions with the flippers again to improve collision detection. 
-	        if (flipperLeft.checkCollision(ball) || flipperRight.checkCollision(ball)) return;
-	        
-	        // Check collisions with the left slingshot components. 
-	        slingLeft.checkCollision(ball);
-	        slingLeftExtension1.checkCollision(ball);
-	        slingLeftExtension2.checkCollision(ball);
-	        
-	        // Check collisions with the right slingshot components. 
-	        slingRight.checkCollision(ball);
-	        slingRightExtension1.checkCollision(ball);
-	        slingRightExtension2.checkCollision(ball);
-	        
-	        // Check if the ball burns. 
-	        if (ball.y + ball.radius > HEIGHT) gameOver = true;
 	        
 		}
 		
