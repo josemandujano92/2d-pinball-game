@@ -6,8 +6,9 @@ import javax.swing.SwingUtilities;
 class GameFrame extends JFrame implements Runnable {
 	
 	private GameFrame() {
-	    setTitle("<--- Pinball Game --->   [press (P) to pause/resume]");
+	    setTitle("\\o Pinball Game o/   [press (P) to pause/resume]");
 	    setDefaultCloseOperation(EXIT_ON_CLOSE);
+	    setResizable(false);
 	}
 	
 	public void run() {

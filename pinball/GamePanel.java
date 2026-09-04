@@ -21,19 +21,24 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     private long now;
     private boolean paused = false;
     private boolean gameOver = false;
-    private Font scoreFont = new Font("Monospaced", Font.BOLD, 25);
+    private Font scoreFont = new Font("Dialog", Font.BOLD, 25);
     private int score = 0;
     private BasicStroke basicStroke = new BasicStroke(15);
     private Line2D.Double lava = new Line2D.Double(0, HEIGHT - 5, WIDTH, HEIGHT - 5);
     
     // Game objects
+    
     private Ball ball;
     private double startX = WIDTH / 2;
     private double startY = HEIGHT / 7;
     private double ballRadius = 10;
+    
     private ArrayList<Bumper> bumpers = new ArrayList<Bumper>();
+    
     private Portal portal;
+    
     private Arrow arrowLeft, arrowRight;
+    
     private Slingshot slingLeft, slingLeftExtension1, slingLeftExtension2;
     private double slFirstVertexX = 0.2 * WIDTH - 10;
     private double slFirstVertexY = 0.65 * HEIGHT - 60;
@@ -41,6 +46,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     private double slSecondVertexY = 0.65 * HEIGHT + 15;
     private double slThirdVertexX = 0.2 * WIDTH - 5;
     private double slThirdVertexY = 0.65 * HEIGHT + 20;
+    
     private Slingshot slingRight, slingRightExtension1, slingRightExtension2;
     private double srFirstVertexX = 0.8 * WIDTH - 20;
     private double srFirstVertexY = 0.65 * HEIGHT - 20;
@@ -48,13 +54,15 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     private double srSecondVertexY = 0.65 * HEIGHT - 90;
     private double srThirdVertexX = 0.8 * WIDTH + 5;
     private double srThirdVertexY = 0.65 * HEIGHT - 15;
+    
     private Flipper flipperLeft, flipperRight;
     
+    // Panel constructor is called by run method of frame. 
 	GamePanel() {
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		setBackground(Color.BLACK);
         setFocusable(true);
-        gameThread = new Thread(this); // The title overlay appears until the thread is started. 
+        gameThread = new Thread(this);
         initObjects();
         addKeyListener(this);
 	}
@@ -110,7 +118,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     public void keyReleased(KeyEvent e) {
     	
     	switch (e.getKeyCode()) {
-	    	case KeyEvent.VK_S: // Execute this.run() on the game thread. 
+	    	case KeyEvent.VK_S: // The title overlay appears until the thread is started. 
 				if (!running) gameThread.start();
 				break;
 	    	case KeyEvent.VK_R: // reset the game
@@ -236,7 +244,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 		  // Draw the score. 
 	      g2.setColor(Color.WHITE);
 	      g2.setFont(scoreFont);
-	      g2.drawString("Score: " + score, 5, 20);
+	      g2.drawString("Score: " + score, 5, 25);
 		  
 		  // Draw the game objects. 
 	      
@@ -282,21 +290,21 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 	// Method to draw the title overlay with instructions. 
     private void drawTitle(Graphics2D g2) {
         
-        g2.setFont(new Font("Monospaced", Font.BOLD, 45));
+        g2.setFont(new Font("Dialog", Font.BOLD, 45));
         
-        String title = "< Pinball Game >";
+        String title = "Pinball Game";
         int titleWidth = g2.getFontMetrics().stringWidth(title);
         
         g2.drawString(title, (WIDTH - titleWidth) / 2, HEIGHT / 4 + 40);
         
-        g2.setFont(new Font("Monospaced", Font.BOLD, 25));
+        g2.setFont(new Font("Dialog", Font.BOLD, 25));
         
         String prompt = "press (S) to start";
         int promptWidth = g2.getFontMetrics().stringWidth(prompt);
         
         g2.drawString(prompt, (WIDTH - promptWidth) / 2, HEIGHT / 2 + 20);
         
-        g2.setFont(new Font("Monospaced", Font.BOLD, 20));
+        g2.setFont(new Font("Dialog", Font.BOLD, 20));
         FontMetrics fm = g2.getFontMetrics();
         
         String instructionL1 = "use the left/right arrow key";
@@ -310,7 +318,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     // Method for the pauses. 
     private void drawPaused(Graphics2D g2) {
     	
-    	g2.setFont(new Font("Monospaced", Font.BOLD, 30));
+    	g2.setFont(new Font("Dialog", Font.BOLD, 30));
   	  	
   	  	String pausedStr = "< Paused >";
   	  	int pausedStrWidth = g2.getFontMetrics().stringWidth(pausedStr);
@@ -322,14 +330,14 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     // Method for the game over state. 
     private void drawGameOver(Graphics2D g2) {
     	
-    	g2.setFont(new Font("Monospaced", Font.BOLD, 35));
+    	g2.setFont(new Font("Dialog", Font.BOLD, 35));
   	  	
-  	  	String gameOverStr = "< Game Over >";
+  	  	String gameOverStr = "Game Over";
   	  	int gameOverStrWidth = g2.getFontMetrics().stringWidth(gameOverStr);
   	  	
   	  	g2.drawString(gameOverStr, (WIDTH - gameOverStrWidth) / 2, HEIGHT / 2 - 20);
   	  	
-  	  	g2.setFont(new Font("Monospaced", Font.BOLD, 25));
+  	  	g2.setFont(new Font("Dialog", Font.BOLD, 25));
         
         String prompt = "press (R) to restart";
         int promptWidth = g2.getFontMetrics().stringWidth(prompt);
