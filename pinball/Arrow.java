@@ -9,7 +9,7 @@ class Arrow {
 	
 	private double spX, spY; // start point coordinates
 	private Vector2D arrow;
-	private Line2D.Double arrowLine, arrowHeadOneSide, arrowHeadOtherSide;
+	private Line2D.Double arrowTail, arrowHeadOneSide, arrowHeadOtherSide;
 	private BasicStroke stroke = new BasicStroke(5, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER);
 	
 	Arrow(double spX, double spY, double epX, double epY) {
@@ -24,7 +24,7 @@ class Arrow {
     	Vector2D headFront = (new Vector2D(epX, epY)).add(arrow.normalize().scale(5));
     	
     	// for rendering
-    	arrowLine = new Line2D.Double(spX, spY, epX, epY);
+    	arrowTail = new Line2D.Double(spX, spY, epX, epY);
     	arrowHeadOneSide = new Line2D.Double(epX + headSide.x, epY + headSide.y, headFront.x, headFront.y);
     	arrowHeadOtherSide = new Line2D.Double(headFront.x, headFront.y, epX - headSide.x, epY - headSide.y);
         
@@ -33,21 +33,21 @@ class Arrow {
 	void checkOverlap(Ball ball) {
 		
     	// Vector from start point to ball center. 
-    	Vector2D sbVector = new Vector2D(ball.x - spX, ball.y - spY);
+    	Vector2D referenceVector = new Vector2D(ball.x - spX, ball.y - spY);
     	
     	// Factor from the projection of the ball center onto the arrow line. 
-    	double pf = sbVector.dot(arrow) / arrow.dot(arrow);
+    	double pf = referenceVector.dot(arrow) / arrow.dot(arrow);
     	
     	// Adjustment of projection factor for cases where projected point does not lie on arrow itself. 
         pf = Math.max(0, Math.min(1, pf));
         
         // Vector for overlapping test. 
-        Vector2D referenceVector = sbVector.subtract(arrow.scale(pf));
+        referenceVector = referenceVector.subtract(arrow.scale(pf));
         
         // If there is overlapping, then redirect the ball. 
         if (referenceVector.length() < ball.radius) {
-        	ball.vx = 0.5 * arrow.x;
-        	ball.vy = 0.5 * arrow.y;
+        	ball.vx += 0.5 * arrow.x;
+        	ball.vy += 0.5 * arrow.y;
         }
 		
 	}
@@ -58,7 +58,7 @@ class Arrow {
 		g2.setColor(Color.MAGENTA);
 		
 		// arrow parts
-		g2.draw(arrowLine);
+		g2.draw(arrowTail);
 		g2.draw(arrowHeadOneSide);
 		g2.draw(arrowHeadOtherSide);
 		

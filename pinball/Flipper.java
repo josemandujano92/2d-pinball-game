@@ -165,13 +165,11 @@ class Flipper {
     		ball.vy = movementVector.y;
     		
     		// Move the ball away to avoid clipping. 
-    		if (pressed) {
-    			movementVector = movementVector.normalize().scale(ball.radius);
-    			ball.x += movementVector.x;
-    			ball.y += movementVector.y;
-    		}
+    		movementVector = movementVector.normalize().scale(ball.radius);
+			ball.x += movementVector.x;
+			ball.y += movementVector.y;
     		
-    		ball.update();
+    		if (pressed) ball.update();
     		
     		return true;
 			
