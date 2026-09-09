@@ -3,6 +3,7 @@ package pinball;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 
 import javax.swing.JPanel;
@@ -23,6 +24,9 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     private boolean gameOver = false;
     private Font scoreFont = new Font("Dialog", Font.BOLD, 25);
     private int score = 0;
+    private ArrayList<Ellipse2D.Double> stars = new ArrayList<Ellipse2D.Double>();
+    private GradientPaint gpBlue = new GradientPaint(0, 0, Color.BLUE.darker(), 0, HEIGHT - 30, Color.BLACK); // Gradient for the sky. 
+    private GradientPaint gpRed = new GradientPaint(0, HEIGHT - 30, Color.BLACK, 0, HEIGHT, Color.RED); // Gradient from black to red. 
     private BasicStroke basicStroke = new BasicStroke(15);
     private Line2D.Double lava = new Line2D.Double(0, HEIGHT - 5, WIDTH, HEIGHT - 5);
     
@@ -69,6 +73,11 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 	
 	// Preparations
 	private void initObjects() {
+		
+		// Create stars on random locations. 
+		for (int i = 0; i < 50; i++) {
+	    	stars.add(new Ellipse2D.Double(Math.random() * WIDTH, Math.random() * HEIGHT, 3, 3));
+	    }
 		
         ball = new Ball(startX, startY, ballRadius);
         
@@ -238,6 +247,20 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 		  super.paintComponent(g);
 		  Graphics2D g2 = (Graphics2D) g;
 		  
+		  // sky with stars in the background
+		  
+		  g2.setPaint(gpBlue);
+		  g2.fillRect(0, 0, WIDTH, HEIGHT - 30);
+		  
+		  g2.setColor(Color.WHITE);
+		  for (Ellipse2D.Double s : stars) {
+			  g2.fill(s);
+		  }
+		  
+		  // glow of lava planet
+		  g2.setPaint(gpRed);
+		  g2.fillRect(0, HEIGHT - 30, WIDTH, 30);
+		  
 		  // Antialiasing for smoother lines. 
 		  g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		  
@@ -270,7 +293,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 	      flipperLeft.draw(g2);
 	      flipperRight.draw(g2);
 	      
-	      // Draw lava at the bottom. 
+		  // Draw lava at the bottom. 
 		  g2.setStroke(basicStroke);
 		  g2.setColor(Color.RED);
 		  g2.draw(lava);
@@ -320,7 +343,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     	
     	g2.setFont(new Font("Dialog", Font.BOLD, 30));
   	  	
-  	  	String pausedStr = "< Paused >";
+  	  	String pausedStr = "Game Paused";
   	  	int pausedStrWidth = g2.getFontMetrics().stringWidth(pausedStr);
   	  	
   	  	g2.drawString(pausedStr, (WIDTH - pausedStrWidth) / 2, HEIGHT / 2);
