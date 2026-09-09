@@ -2,7 +2,6 @@ package pinball;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.Ellipse2D;
 
 class Ball {
 	
@@ -54,7 +53,7 @@ class Ball {
     
     void draw(Graphics2D g2) {
         g2.setColor(Color.WHITE);
-        g2.fill(new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2));
+        g2.fillOval((int) (x - radius), (int) (y - radius), (int) (2 * radius), (int) (2 * radius));
     }
     
 }

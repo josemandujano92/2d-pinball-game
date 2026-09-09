@@ -9,7 +9,7 @@ class Slingshot {
 	
 	private double spX, spY; // start point coordinates
 	private Vector2D seVector;
-	private Line2D.Double slingshotLine;
+	private Line2D.Double slingshot;
 	private boolean active;
 	private BasicStroke lineWidth = new BasicStroke(10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	
@@ -21,8 +21,8 @@ class Slingshot {
         // Vector from start point to end point. 
     	this.seVector = new Vector2D(epX - spX, epY - spY);
     	
-    	// Slingshot line (for rendering)
-    	this.slingshotLine = new Line2D.Double(spX, spY, epX, epY);
+    	// for rendering
+    	this.slingshot = new Line2D.Double(spX, spY, epX, epY);
         
 	}
 	
@@ -78,7 +78,7 @@ class Slingshot {
 			g2.setColor(Color.ORANGE);
 		}
         
-        g2.draw(slingshotLine);
+        g2.draw(slingshot);
         
     }
 	
