@@ -103,8 +103,8 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
         slingRightExtension1 = new Slingshot(srFirstVertexX, srFirstVertexY, srThirdVertexX, srThirdVertexY);
         slingRightExtension2 = new Slingshot(srThirdVertexX, srThirdVertexY, srSecondVertexX, srSecondVertexY);
         
-        flipperLeft = new Flipper(0.3 * WIDTH, HEIGHT - 100, true);
-        flipperRight = new Flipper(0.7 * WIDTH, HEIGHT - 100, false);
+        flipperLeft = new Flipper(145, HEIGHT - 100, true);
+        flipperRight = new Flipper(WIDTH - 145, HEIGHT - 100, false);
         
     }
 	
