@@ -3,31 +3,24 @@ package pinball;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.Ellipse2D;
 
 class Portal {
 	
-	private double entryX, entryY, entryRadius; // Location and size of the entry. 
-	private double exitX, exitY; // Location of the exit. 
-	private Ellipse2D.Double outerPartOfEntry, innerPartOfEntry;
-	private Ellipse2D.Double exit;
-	private BasicStroke stroke = new BasicStroke(2);
+	private int entryX, entryY, entryRadius; // Location and size of the entry. 
+	private int exitX, exitY, exitRadius; // Location and size of the exit. 
+	private boolean active;
+	private BasicStroke thin = new BasicStroke(2);
+	private BasicStroke thick = new BasicStroke(8);
 	
-    Portal(double entryX, double entryY, double entryRadius, double exitX, double exitY, double exitRadius) {
+    Portal(int entryX, int entryY, int entryRadius, int exitX, int exitY, int exitRadius) {
     	
     	this.entryX = entryX;
         this.entryY = entryY;
         this.entryRadius = entryRadius;
         
-        // for rendering
-        this.outerPartOfEntry = new Ellipse2D.Double(entryX - entryRadius, entryY - entryRadius, entryRadius * 2, entryRadius * 2);
-        this.innerPartOfEntry = new Ellipse2D.Double(entryX - 0.8 * entryRadius, entryY - 0.8 * entryRadius, entryRadius * 1.6, entryRadius * 1.6);
-        
         this.exitX = exitX;
         this.exitY = exitY;
-        
-        // for rendering
-        this.exit = new Ellipse2D.Double(exitX - exitRadius, exitY - exitRadius, exitRadius * 2, exitRadius * 2);
+        this.exitRadius = exitRadius;
         
     }
     
@@ -39,6 +32,8 @@ class Portal {
     	// If there is overlapping, then transport the ball to the exit. 
     	if (centersVector.length() < entryRadius) {
     		
+    		active = true;
+    		
     		ball.x = exitX;
     		ball.y = exitY;
     		
@@ -46,6 +41,10 @@ class Portal {
     		ball.vx *= 0.5;
     		ball.vy *= 0.5;
     		
+		} else {
+			
+			active = false;
+			
 		}
     	
     }
@@ -54,19 +53,21 @@ class Portal {
     	
     	// Exit
     	
-    	g2.setStroke(stroke);
-    	
     	g2.setColor(Color.GREEN);
     	
-    	g2.draw(exit);
+    	g2.setStroke(thin);
+    	
+    	g2.drawOval(exitX - exitRadius, exitY - exitRadius, 2 * exitRadius, 2 * exitRadius);
     	
     	// Entry
     	
-    	g2.fill(outerPartOfEntry);
+    	g2.setStroke(thick);
     	
-    	g2.setColor(Color.BLUE);
+    	g2.drawOval(entryX - entryRadius, entryY - entryRadius, 2 * entryRadius, 2 * entryRadius);
     	
-    	g2.fill(innerPartOfEntry);
+    	if (!active) g2.setColor(Color.BLUE);
+    	
+    	g2.fillOval(entryX - entryRadius, entryY - entryRadius, 2 * entryRadius, 2 * entryRadius);
     	
     }
     

@@ -8,7 +8,7 @@ A minimal 2D pinball game built in Java.
 The ball spawns near the top. The player uses the flippers to hit the ball. 
 
 ### Project Structure
-* GameFrame.java: Sets up window size, close operation and adds the game panel. 
+* GameFrame.java: Contains the main method. Sets up window size, close operation and adds the game panel. 
 * GamePanel.java: Contains input listeners, game loop, paint component. 
 * Ball.java/Bumper.java/Arrow.java/Portal.java/Slingshot.java/Flipper.java: Classes for pinball objects (containing methods for movement, collision handling, rendering). 
 * Vector2D.java: Class for 2D vector operations. 

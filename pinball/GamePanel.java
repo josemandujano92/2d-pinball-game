@@ -3,8 +3,6 @@ package pinball;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
 
 import javax.swing.JPanel;
 
@@ -16,19 +14,19 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 	static final int WIDTH = 480;
 	static final int HEIGHT = 650;
 	private Thread gameThread;
-    private double nsPerFrame = 1_000_000_000.0 / 60.0; // A frame frequency of 60/s yields 16666666.7 nanoseconds per frame. 
-    private boolean running = false;
-    private long lastTime;
-    private long now;
+	private boolean running = false;
     private boolean paused = false;
     private boolean gameOver = false;
+    private double nsPerFrame = 1_000_000_000.0 / 60.0; // A frame frequency of 60/s yields 16666666.7 nanoseconds per frame. 
+    private long lastTime;
+    private long now;
     private Font scoreFont = new Font("Dialog", Font.BOLD, 25);
     private int score = 0;
-    private ArrayList<Ellipse2D.Double> stars = new ArrayList<Ellipse2D.Double>();
+    private int numOfStars = 50;
+    private int[] x, y;
     private GradientPaint gpBlue = new GradientPaint(0, 0, Color.BLUE.darker(), 0, HEIGHT - 30, Color.BLACK); // Gradient for the sky. 
-    private GradientPaint gpRed = new GradientPaint(0, HEIGHT - 30, Color.BLACK, 0, HEIGHT, Color.RED); // Gradient from black to red. 
+    private GradientPaint gpRed = new GradientPaint(0, HEIGHT - 30, Color.BLACK, 0, HEIGHT, Color.RED); // Gradient for the bottom. 
     private BasicStroke basicStroke = new BasicStroke(15);
-    private Line2D.Double lava = new Line2D.Double(0, HEIGHT - 5, WIDTH, HEIGHT - 5);
     
     // Game objects
     
@@ -43,65 +41,67 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     
     private Arrow arrowLeft, arrowRight;
     
-    private Slingshot slingLeft, slingLeftExtension1, slingLeftExtension2;
-    private double slFirstVertexX = 0.2 * WIDTH - 20;
-    private double slFirstVertexY = 0.65 * HEIGHT - 60;
-    private double slSecondVertexX = 0.2 * WIDTH + 20;
-    private double slSecondVertexY = 0.65 * HEIGHT + 15;
-    private double slThirdVertexX = 0.2 * WIDTH - 5;
-    private double slThirdVertexY = 0.65 * HEIGHT + 20;
+    private Slingshot slingLeft;
+    private double[] slVertex1 = {0.2 * WIDTH - 25, 0.5 * HEIGHT + 10};
+    private double[] slVertex2 = {0.2 * WIDTH + 5, 0.55 * HEIGHT + 20};
+    private double[] slVertex3 = {0.2 * WIDTH - 5, 0.55 * HEIGHT + 20};
+    private double[] slVertex4 = {0.2 * WIDTH + 25, 0.6 * HEIGHT + 30};
     
-    private Slingshot slingRight, slingRightExtension1, slingRightExtension2;
-    private double srFirstVertexX = 0.8 * WIDTH + 20;
-    private double srFirstVertexY = 0.65 * HEIGHT - 90;
-    private double srSecondVertexX = 0.8 * WIDTH - 20;
-    private double srSecondVertexY = 0.65 * HEIGHT - 20;
-    private double srThirdVertexX = 0.8 * WIDTH + 5;
-    private double srThirdVertexY = 0.65 * HEIGHT - 15;
+    private Slingshot slingRight;
+    private double[] srVertex1 = {0.8 * WIDTH + 25, 0.5 * HEIGHT - 10};
+    private double[] srVertex2 = {0.8 * WIDTH - 5, 0.55 * HEIGHT + 10};
+    private double[] srVertex3 = {0.8 * WIDTH + 5, 0.55 * HEIGHT + 10};
+    private double[] srVertex4 = {0.8 * WIDTH - 25, 0.6 * HEIGHT + 30};
     
     private Flipper flipperLeft, flipperRight;
     
-    // Panel constructor is called by run method of frame. 
+    // The panel constructor is called by the run method of the frame. 
 	GamePanel() {
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		setBackground(Color.BLACK);
         setFocusable(true);
         gameThread = new Thread(this);
+        stars();
         initObjects();
         addKeyListener(this);
 	}
 	
 	// Preparations
-	private void initObjects() {
+	
+	private void stars() {
+		
+		x = new int[numOfStars];
+		y = new int[numOfStars];
 		
 		// Create stars on random locations. 
-		for (int i = 0; i < 50; i++) {
-	    	stars.add(new Ellipse2D.Double(Math.random() * WIDTH, Math.random() * HEIGHT, 3, 3));
+		for (int i = 0; i < numOfStars; i++) {
+			x[i] = (int) (Math.random() * WIDTH);
+			y[i] = (int) (Math.random() * HEIGHT);
 	    }
+		
+	}
+	
+	private void initObjects() {
 		
         ball = new Ball(startX, startY, ballRadius);
         
         // Add bumpers to the list. 
-        bumpers.add(new Bumper(0.35 * WIDTH, HEIGHT / 4, 15));
-        bumpers.add(new Bumper(0.65 * WIDTH, HEIGHT / 5, 20));
+        bumpers.add(new Bumper((int) (0.35 * WIDTH), HEIGHT / 4, 15));
+        bumpers.add(new Bumper((int) (0.65 * WIDTH), HEIGHT / 5, 20));
         bumpers.add(new Bumper(WIDTH / 2 - 5, HEIGHT / 3 + 5, 25));
         
         // Portal that transports the ball to the top. 
-        portal = new Portal(WIDTH / 2, HEIGHT / 2 + 55, 20, WIDTH / 4, HEIGHT / 8, 10);
+        portal = new Portal(WIDTH / 2, HEIGHT / 2 + 55, (int) (2 * ballRadius), WIDTH / 4, HEIGHT / 8, (int) ballRadius);
         
         // One arrow on each side pointing upwards. 
-        arrowLeft = new Arrow(0.2 * WIDTH, HEIGHT / 2, 0.2 * WIDTH + 20, HEIGHT / 2 - 40);
-        arrowRight = new Arrow(0.8 * WIDTH, HEIGHT / 2 - 60, 0.8 * WIDTH - 20, HEIGHT / 2 - 90);
+        arrowLeft = new Arrow(120, 290, 145, 255);
+        arrowRight = new Arrow(WIDTH - 120, 250, WIDTH - 145, 215);
         
-        // The components of the left slingshot. 
-        slingLeft = new Slingshot(slFirstVertexX, slFirstVertexY, slSecondVertexX, slSecondVertexY);
-        slingLeftExtension1 = new Slingshot(slFirstVertexX, slFirstVertexY, slThirdVertexX, slThirdVertexY);
-        slingLeftExtension2 = new Slingshot(slThirdVertexX, slThirdVertexY, slSecondVertexX, slSecondVertexY);
+        // The slingshot on the left. 
+        slingLeft = new Slingshot(slVertex1, slVertex2, slVertex3, slVertex4);
         
-        // The components of the right slingshot. 
-        slingRight = new Slingshot(srFirstVertexX, srFirstVertexY, srSecondVertexX, srSecondVertexY);
-        slingRightExtension1 = new Slingshot(srFirstVertexX, srFirstVertexY, srThirdVertexX, srThirdVertexY);
-        slingRightExtension2 = new Slingshot(srThirdVertexX, srThirdVertexY, srSecondVertexX, srSecondVertexY);
+        // The slingshot on the right. 
+        slingRight = new Slingshot(srVertex1, srVertex2, srVertex3, srVertex4);
         
         flipperLeft = new Flipper(145, HEIGHT - 100, true);
         flipperRight = new Flipper(WIDTH - 145, HEIGHT - 100, false);
@@ -147,7 +147,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     @Override
     public void keyTyped(KeyEvent e) { }
 	
-    // Execute on the game thread! 
+    // Execute this run method on the game thread! 
 	@Override
 	public void run() {
 		
@@ -209,8 +209,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 	        	if (ball.x < 0.5 * WIDTH) {
 	        		
 	        		// Check collisions with the left slingshot. 
-	        		if (slingLeft.checkCollision(ball) || 
-	        				slingLeftExtension1.checkCollision(ball) || slingLeftExtension2.checkCollision(ball)) return;
+	        		if (slingLeft.checkCollision(ball)) return;
 	        		
 	        		// Check if the ball touches the left arrow. 
 	    	        arrowLeft.checkOverlap(ball);
@@ -218,8 +217,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 	        	} else {
 	        		
 	        		// Check collisions with the right slingshot. 
-	        		if (slingRight.checkCollision(ball) || 
-	        				slingRightExtension1.checkCollision(ball) || slingRightExtension2.checkCollision(ball)) return;
+	        		if (slingRight.checkCollision(ball)) return;
 	    	        
 	    	        // Check if the ball touches the right arrow. 
 	    	        arrowRight.checkOverlap(ball);
@@ -253,8 +251,8 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 		  g2.fillRect(0, 0, WIDTH, HEIGHT - 30);
 		  
 		  g2.setColor(Color.WHITE);
-		  for (Ellipse2D.Double s : stars) {
-			  g2.fill(s);
+		  for (int i = 0; i < numOfStars; i++) {
+			  g2.fillOval(x[i], y[i], 3, 3);
 		  }
 		  
 		  // glow of lava planet
@@ -283,12 +281,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 		  portal.draw(g2);
 		  
 		  slingLeft.draw(g2);
-		  slingLeftExtension1.draw(g2);
-		  slingLeftExtension2.draw(g2);
-		  
 		  slingRight.draw(g2);
-		  slingRightExtension1.draw(g2);
-		  slingRightExtension2.draw(g2);
 		  
 	      flipperLeft.draw(g2);
 	      flipperRight.draw(g2);
@@ -296,7 +289,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 		  // Draw lava at the bottom. 
 		  g2.setStroke(basicStroke);
 		  g2.setColor(Color.RED);
-		  g2.draw(lava);
+		  g2.drawLine(0, HEIGHT - 5, WIDTH, HEIGHT - 5);
 		  
 	      // Overlays
 		  

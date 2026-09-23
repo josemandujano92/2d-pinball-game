@@ -3,31 +3,30 @@ package pinball;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.Line2D;
 
 class Arrow {
 	
-	private double spX, spY; // start point coordinates
+	private int spX, spY; // start point coordinates
+	private int epX, epY; // end point coordinates
 	private Vector2D arrow;
-	private Line2D.Double arrowTail, arrowHeadOneSide, arrowHeadOtherSide;
-	private BasicStroke stroke = new BasicStroke(5, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER);
+	private Vector2D headFront, headSide;
+	private boolean active;
+	private BasicStroke stroke = new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 	
-	Arrow(double spX, double spY, double epX, double epY) {
+	Arrow(int spX, int spY, int epX, int epY) {
 		
 		this.spX = spX;
         this.spY = spY;
+        this.epX = epX;
+        this.epY = epY;
         
-    	this.arrow = new Vector2D(epX - spX, epY - spY); // Vector from start point to end point. 
-    	
-    	// compute additional points
-    	Vector2D headSide = (new Vector2D(arrow.y, -arrow.x)).normalize().scale(5);
-    	Vector2D headFront = (new Vector2D(epX, epY)).add(arrow.normalize().scale(5));
-    	
-    	// for rendering
-    	arrowTail = new Line2D.Double(spX, spY, epX, epY);
-    	arrowHeadOneSide = new Line2D.Double(epX + headSide.x, epY + headSide.y, headFront.x, headFront.y);
-    	arrowHeadOtherSide = new Line2D.Double(headFront.x, headFront.y, epX - headSide.x, epY - headSide.y);
+        // Vector from start point to end point. 
+        this.arrow = new Vector2D(epX - spX, epY - spY);
         
+        // Compute additional points for rendering. 
+        headFront = (new Vector2D(epX, epY)).add(arrow.normalize().scale(6));
+        headSide = (new Vector2D(arrow.y, -arrow.x)).normalize().scale(6);
+     	
 	}
 	
 	void checkOverlap(Ball ball) {
@@ -46,8 +45,16 @@ class Arrow {
         
         // If there is overlapping, then redirect the ball. 
         if (referenceVector.length() < ball.radius) {
+        	
+        	active = true;
+        	
         	ball.vx += 0.5 * arrow.x;
         	ball.vy += 0.5 * arrow.y;
+        	
+        } else {
+        	
+        	active = false;
+        	
         }
 		
 	}
@@ -55,12 +62,19 @@ class Arrow {
 	void draw(Graphics2D g2) {
 		
 		g2.setStroke(stroke);
-		g2.setColor(Color.MAGENTA);
 		
-		// arrow parts
-		g2.draw(arrowTail);
-		g2.draw(arrowHeadOneSide);
-		g2.draw(arrowHeadOtherSide);
+		if (active) {
+			g2.setColor(Color.PINK);
+		} else {
+			g2.setColor(Color.MAGENTA);
+		}
+		
+    	// arrow head
+		g2.drawLine((int) headFront.x, (int) headFront.y, (int) (epX + headSide.x), (int) (epY + headSide.y));
+		g2.drawLine((int) headFront.x, (int) headFront.y, (int) (epX - headSide.x), (int) (epY - headSide.y));
+		
+    	// arrow tail
+    	g2.drawLine(spX, spY, epX, epY);
 		
 	}
 	
